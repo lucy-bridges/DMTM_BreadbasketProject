@@ -8,3 +8,31 @@ BreadBasketData <- read.csv("https://raw.githubusercontent.com/reisanar/datasets
 ```
 
 
+```{r}
+library(dplyr)
+library(tidyverse)
+```
+
+Lucy's Work:
+I'd like to see if there is a day (M, T, W, R, F, S, S) where more transactions took place and if more transactions were in the morning, afternoon, or evenings.
+
+```{r}
+#filter data into three categories: morning, afternoon, evening
+
+MorningData <- BreadBasketData %>% 
+                filter(Time <= 10:59:59)   #before 11am
+
+AfternoonData <- BreadBasketData %>% 
+                  #filter(Time > 10:59:59 && Time <= 15:59:59)   #11 to 4pm
+                  #filter(time, Time("11:00:00":"15:59:59"))
+
+EveningData <- BreadBasketData %>% 
+                filter(Time > 16:00:00)   #after 4pm
+```
+
+
+Where to start:
+-Summarize the data using any of the tools and concepts discussed so far. For example, you may need to aggregate the data (using filter(), group_by(), and summarize() from the dplyr package). Contact your instructor as soon as possible if you run into trouble formatting the data and performing any data wrangling steps.
+-Create summaries, comparisons, and any other type of quantitative analysis using the tools learned in class.
+-Briefly describe the methodology you decide to use and explain your choice of descriptive/predictive/prescriptive analytics methods. For example, you may decide to explore clustering methods, association rules, anomaly detection algorithms, topic modeling approaches, sentiment analysis, and/or other data mining and text mining methodologies.
+-You should include some data visualizations and enough documentation of the code you develop, noting that a small set of high quality visualizations will receive a much higher grade than a large number of poor quality visualizations.
