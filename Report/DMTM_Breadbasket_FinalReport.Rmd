@@ -11,6 +11,7 @@ BreadBasketData <- read.csv("https://raw.githubusercontent.com/reisanar/datasets
 ```{r}
 library(dplyr)
 library(tidyverse)
+library(arules)
 ```
 
 Lucy's Work:
@@ -36,3 +37,22 @@ Where to start:
 -Create summaries, comparisons, and any other type of quantitative analysis using the tools learned in class.
 -Briefly describe the methodology you decide to use and explain your choice of descriptive/predictive/prescriptive analytics methods. For example, you may decide to explore clustering methods, association rules, anomaly detection algorithms, topic modeling approaches, sentiment analysis, and/or other data mining and text mining methodologies.
 -You should include some data visualizations and enough documentation of the code you develop, noting that a small set of high quality visualizations will receive a much higher grade than a large number of poor quality visualizations.
+
+Chris' Work:
+
+```{r}
+#get rid of every column except the transaction and the items
+breadbasket <- breadbasket %>%
+  select(Transaction, Item)
+
+#check that it worked
+breadbasket
+
+#convert new set to transaction
+bb_tr <- as(split(breadbasket[ ,"Item"], breadbasket[ ,"Transaction"]), "transactions")
+inspect(bb_tr)
+
+#create item frequency plot of the top 6 items
+IF_bb = rev(tail(sort(itemFrequency(bb_tr)), 6))
+barplot(IF_bb, las=2, cex.names=0.8)
+```
