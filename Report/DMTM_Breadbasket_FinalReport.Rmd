@@ -42,11 +42,11 @@ Chris' Work:
 
 ```{r}
 #get rid of every column except the transaction and the items
-breadbasket <- breadbasket %>%
+breadbasketmain <- BreadBasketData %>%
   select(Transaction, Item)
 
 #check that it worked
-breadbasket
+breadbasketmain
 
 #convert new set to transaction
 bb_tr <- as(split(breadbasket[ ,"Item"], breadbasket[ ,"Transaction"]), "transactions")
