@@ -24,7 +24,7 @@ MorningData <- BreadBasketData %>%
                 filter(Time <= 10:59:59)   #before 11am
 
 AfternoonData <- BreadBasketData %>% 
-                  filter(Time > 10:59:59 & Time <= 15:59:59)   #11 to 4pm
+                  #filter(Time > 10:59:59 && Time <= 15:59:59)   #11 to 4pm
                   #filter(time, Time("11:00:00":"15:59:59"))
 
 EveningData <- BreadBasketData %>% 
@@ -59,6 +59,19 @@ barplot(IF_bb, las=2, cex.names=0.8)
 
 
 Wyatt's Work:
+  Lucy's work FIXED
+```{r}
+#filter data into three categories: morning, afternoon, evening
+MorningData <- BreadBasketData %>% 
+                filter(Time >= "01:21:05" & Time <= "10:59:59")   #before 11am
+
+AfternoonData <- BreadBasketData %>% 
+                  filter(Time >= "10:59:59" & Time <= "15:59:59")   #11 to 4pm
+
+EveningData <- BreadBasketData %>% 
+                filter(Time >= "16:00:00" & Time <= "22:15:55")   #after 4pm
+```
+
 ```{r}
 BreadBasketData
 summary(BreadBasketData)
@@ -78,3 +91,36 @@ BreadBasketData %>%
   arrange(Time) %>%
   tail(20)
 ```
+Check to make sure the three time tables work
+
+-Morning-
+```{r}
+MorningData %>%
+  arrange(Time) %>%
+  head(10)
+  
+MorningData %>%
+  arrange(Time) %>%
+  tail(10)
+ ```
+ -Afternoon-
+ ```{r}
+ AfternoonData %>%
+  arrange(Time) %>%
+  head(10)
+ 
+ AfternoonData %>%
+  arrange(Time) %>%
+  tail(10)
+ ```
+ 
+ -Evening-
+ ```{r}
+ EveningData %>%
+  arrange(Time) %>%
+  head(10)
+ 
+ EveningData %>%
+  arrange(Time) %>%
+  tail(10)
+ ```
