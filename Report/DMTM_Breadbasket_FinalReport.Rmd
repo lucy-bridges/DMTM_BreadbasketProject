@@ -59,7 +59,22 @@ barplot(IF_bb, las=2, cex.names=0.8)
 
 
 Wyatt's Work:
-  Lucy's work FIXED
+Created these two tables to show what are start and end time are, to better determine the Morning, Afternoon, and Evening data tables.
+```{r}
+# top end for time spectrum
+BreadBasketData %>%
+  arrange(Time) %>%
+  head(20)
+```
+
+```{r}
+# bottom end for time spectrum
+BreadBasketData %>%
+  arrange(Time) %>%
+  tail(20)
+```
+
+   Lucy's work FIXED
 ```{r}
 #filter data into three categories: morning, afternoon, evening
 MorningData <- BreadBasketData %>% 
@@ -77,20 +92,6 @@ BreadBasketData
 summary(BreadBasketData)
 ```
 
-Created these two tables to show what are start and end time are, to better determine the Morning, Afternoon, and Evening data tables.
-```{r}
-# top end for time spectrum
-BreadBasketData %>%
-  arrange(Time) %>%
-  head(20)
-```
-
-```{r}
-# bottom end for time spectrum
-BreadBasketData %>%
-  arrange(Time) %>%
-  tail(20)
-```
 Check to make sure the three time tables work
 
 -Morning-
@@ -103,24 +104,24 @@ MorningData %>%
   arrange(Time) %>%
   tail(10)
  ```
- -Afternoon-
- ```{r}
- AfternoonData %>%
-  arrange(Time) %>%
-  head(10)
+-Afternoon-
+```{r}
+AfternoonData %>%
+ arrange(Time) %>%
+ head(10)
+
+AfternoonData %>%
+ arrange(Time) %>%
+ tail(10)
+```
  
- AfternoonData %>%
-  arrange(Time) %>%
-  tail(10)
- ```
+-Evening-
+```{r}
+EveningData %>%
+ arrange(Time) %>%
+ head(10)
  
- -Evening-
- ```{r}
- EveningData %>%
-  arrange(Time) %>%
-  head(10)
- 
- EveningData %>%
-  arrange(Time) %>%
-  tail(10)
- ```
+EveningData %>%
+ arrange(Time) %>%
+ tail(10)
+```
