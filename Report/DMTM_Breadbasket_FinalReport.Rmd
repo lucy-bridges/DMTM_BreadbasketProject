@@ -24,7 +24,7 @@ MorningData <- BreadBasketData %>%
                 filter(Time <= 10:59:59)   #before 11am
 
 AfternoonData <- BreadBasketData %>% 
-                  #filter(Time > 10:59:59 && Time <= 15:59:59)   #11 to 4pm
+                  filter(Time > 10:59:59 & Time <= 15:59:59)   #11 to 4pm
                   #filter(time, Time("11:00:00":"15:59:59"))
 
 EveningData <- BreadBasketData %>% 
@@ -55,4 +55,26 @@ inspect(bb_tr)
 #create item frequency plot of the top 6 items
 IF_bb = rev(tail(sort(itemFrequency(bb_tr)), 6))
 barplot(IF_bb, las=2, cex.names=0.8)
+```
+
+
+Wyatt's Work:
+```{r}
+BreadBasketData
+summary(BreadBasketData)
+```
+
+Created these two tables to show what are start and end time are, to better determine the Morning, Afternoon, and Evening data tables.
+```{r}
+# top end for time spectrum
+BreadBasketData %>%
+  arrange(Time) %>%
+  head(20)
+```
+
+```{r}
+# bottom end for time spectrum
+BreadBasketData %>%
+  arrange(Time) %>%
+  tail(20)
 ```
