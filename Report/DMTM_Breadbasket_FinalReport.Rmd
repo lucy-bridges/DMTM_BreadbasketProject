@@ -49,7 +49,7 @@ breadbasketmain <- BreadBasketData %>%
 breadbasketmain
 
 #convert new set to transaction
-bb_tr <- as(split(breadbasket[ ,"Item"], breadbasket[ ,"Transaction"]), "transactions")
+bb_tr <- as(split(breadbasketmain[ ,"Item"], breadbasketmain[ ,"Transaction"]), "transactions")
 inspect(bb_tr)
 
 #create item frequency plot of the top 6 items
@@ -124,4 +124,50 @@ EveningData %>%
 EveningData %>%
  arrange(Time) %>%
  tail(10)
+```
+
+-Item Frequency Tables for Time Frames-
+-Morning-
+```{r}
+#get rid of every column except the transaction and the items
+breadbasketmorning <- MorningData %>%
+  select(Transaction, Item)
+#check that it worked
+breadbasketmorning
+#convert new set to transaction
+bbm_tr <- as(split(breadbasketmorning[ ,"Item"], breadbasketmorning[ ,"Transaction"]), "transactions")
+inspect(bbm_tr)
+#create item frequency plot of the top 6 items
+IF_bbm = rev(tail(sort(itemFrequency(bbm_tr)), 6))
+barplot(IF_bbm, las=2, cex.names=0.8)
+```
+
+-Afternoon-
+```{r}
+#get rid of every column except the transaction and the items
+breadbasketafternoon <- AfternoonData %>%
+  select(Transaction, Item)
+#check that it worked
+breadbasketafternoon
+#convert new set to transaction
+bba_tr <- as(split(breadbasketafternoon[ ,"Item"], breadbasketafternoon[ ,"Transaction"]), "transactions")
+inspect(bba_tr)
+#create item frequency plot of the top 6 items
+IF_bba = rev(tail(sort(itemFrequency(bba_tr)), 6))
+barplot(IF_bba, las=2, cex.names=0.8)
+```
+
+-Evening
+```{r}
+#get rid of every column except the transaction and the items
+breadbasketevening <- EveningData %>%
+  select(Transaction, Item)
+#check that it worked
+breadbasketevening
+#convert new set to transaction
+bbe_tr <- as(split(breadbasketevening[ ,"Item"], breadbasketevening[ ,"Transaction"]), "transactions")
+inspect(bbe_tr)
+#create item frequency plot of the top 6 items
+IF_bbe = rev(tail(sort(itemFrequency(bbe_tr)), 6))
+barplot(IF_bbe, las=2, cex.names=0.8)
 ```
