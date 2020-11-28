@@ -12,25 +12,8 @@ BreadBasketData <- read.csv("https://raw.githubusercontent.com/reisanar/datasets
 library(dplyr)
 library(tidyverse)
 library(arules)
+library(arulesViz)
 ```
-
-Lucy's Work:
-I'd like to see if there is a day (M, T, W, R, F, S, S) where more transactions took place and if more transactions were in the morning, afternoon, or evenings.
-
-```{r}
-#filter data into three categories: morning, afternoon, evening
-
-MorningData <- BreadBasketData %>% 
-                filter(Time <= 10:59:59)   #before 11am
-
-AfternoonData <- BreadBasketData %>% 
-                  #filter(Time > 10:59:59 && Time <= 15:59:59)   #11 to 4pm
-                  #filter(time, Time("11:00:00":"15:59:59"))
-
-EveningData <- BreadBasketData %>% 
-                filter(Time > 16:00:00)   #after 4pm
-```
-
 
 Where to start:
 -Summarize the data using any of the tools and concepts discussed so far. For example, you may need to aggregate the data (using filter(), group_by(), and summarize() from the dplyr package). Contact your instructor as soon as possible if you run into trouble formatting the data and performing any data wrangling steps.
@@ -38,27 +21,24 @@ Where to start:
 -Briefly describe the methodology you decide to use and explain your choice of descriptive/predictive/prescriptive analytics methods. For example, you may decide to explore clustering methods, association rules, anomaly detection algorithms, topic modeling approaches, sentiment analysis, and/or other data mining and text mining methodologies.
 -You should include some data visualizations and enough documentation of the code you develop, noting that a small set of high quality visualizations will receive a much higher grade than a large number of poor quality visualizations.
 
-Chris' Work:
+#Basic exploration of the data
 
 ```{r}
 #get rid of every column except the transaction and the items
 breadbasketmain <- BreadBasketData %>%
   select(Transaction, Item)
-
 #check that it worked
 breadbasketmain
-
 #convert new set to transaction
 bb_tr <- as(split(breadbasketmain[ ,"Item"], breadbasketmain[ ,"Transaction"]), "transactions")
 inspect(bb_tr)
-
 #create item frequency plot of the top 6 items
 IF_bb = rev(tail(sort(itemFrequency(bb_tr)), 6))
 barplot(IF_bb, las=2, cex.names=0.8)
 ```
 
+#Exploration based on time of day
 
-Wyatt's Work:
 Created these two tables to show what are start and end time are, to better determine the Morning, Afternoon, and Evening data tables.
 ```{r}
 # top end for time spectrum
@@ -78,13 +58,11 @@ BreadBasketData %>%
 ```{r}
 #filter data into three categories: morning, afternoon, evening
 MorningData <- BreadBasketData %>% 
-                filter(Time >= "01:21:05" & Time <= "10:59:59")   #before 11am
-
+                filter(Time >= "00:00:00" & Time <= "11:59:59")   #before 12pm
 AfternoonData <- BreadBasketData %>% 
-                  filter(Time >= "10:59:59" & Time <= "15:59:59")   #11 to 4pm
-
+                  filter(Time >= "12:00:00" & Time <= "15:59:59")   #12 to 4pm
 EveningData <- BreadBasketData %>% 
-                filter(Time >= "16:00:00" & Time <= "22:15:55")   #after 4pm
+                filter(Time >= "16:00:00" & Time <= "23:59:59")   #after 4pm
 ```
 
 ```{r}
@@ -92,9 +70,7 @@ BreadBasketData
 summary(BreadBasketData)
 ```
 
-Check to make sure the three time tables work
-
--Morning-
+##Morning
 ```{r}
 MorningData %>%
   arrange(Time) %>%
@@ -103,8 +79,9 @@ MorningData %>%
 MorningData %>%
   arrange(Time) %>%
   tail(10)
- ```
--Afternoon-
+```
+
+##Afternoon
 ```{r}
 AfternoonData %>%
  arrange(Time) %>%
@@ -114,8 +91,9 @@ AfternoonData %>%
  arrange(Time) %>%
  tail(10)
 ```
+
  
--Evening-
+##Evening
 ```{r}
 EveningData %>%
  arrange(Time) %>%
@@ -125,9 +103,10 @@ EveningData %>%
  arrange(Time) %>%
  tail(10)
 ```
+>Checking to make sure the three time tables work
 
--Item Frequency Tables for Time Frames-
--Morning-
+#Item Frequency Tables for Time Frames
+##Morning
 ```{r}
 #get rid of every column except the transaction and the items
 breadbasketmorning <- MorningData %>%
@@ -142,7 +121,7 @@ IF_bbm = rev(tail(sort(itemFrequency(bbm_tr)), 6))
 barplot(IF_bbm, las=2, cex.names=0.8)
 ```
 
--Afternoon-
+##Afternoon
 ```{r}
 #get rid of every column except the transaction and the items
 breadbasketafternoon <- AfternoonData %>%
@@ -151,13 +130,13 @@ breadbasketafternoon <- AfternoonData %>%
 breadbasketafternoon
 #convert new set to transaction
 bba_tr <- as(split(breadbasketafternoon[ ,"Item"], breadbasketafternoon[ ,"Transaction"]), "transactions")
-inspect(bba_tr)
+
 #create item frequency plot of the top 6 items
 IF_bba = rev(tail(sort(itemFrequency(bba_tr)), 6))
 barplot(IF_bba, las=2, cex.names=0.8)
 ```
 
--Evening
+##Evening
 ```{r}
 #get rid of every column except the transaction and the items
 breadbasketevening <- EveningData %>%
@@ -171,3 +150,72 @@ inspect(bbe_tr)
 IF_bbe = rev(tail(sort(itemFrequency(bbe_tr)), 6))
 barplot(IF_bbe, las=2, cex.names=0.8)
 ```
+
+#Arules Anlaysis
+##Main dataset
+```{r}
+#using the apriori function
+breadbasketmain_rules <- apriori(bb_tr,
+                                  parameter = list(support = 0.001,
+                                                   confidence = 0.1))
+#exploration
+inspect(sort(breadbasketmain_rules, by = "lift"))
+inspect(sort(breadbasketmain_rules, by = "count"))
+
+#visualization
+plot(breadbasketmain_rules, method = "graph", control = list(type = "items"),
+     engine = "htmlwidget")
+```
+>Interestingly, Fudge and Jam seem to have a very high chance of occuring together. Coffee alone occurs the most.
+
+##Morning
+```{r}
+#using the apriori function
+breadbasketmorn_rules <- apriori(bbm_tr,
+                                  parameter = list(support = 0.001,
+                                                   confidence = 0.1))
+
+#exploration
+inspect(sort(breadbasketmorn_rules, by = "lift"))
+inspect(sort(breadbasketmorn_rules, by = "count"))
+
+#visualization
+plot(breadbasketmain_rules, method = "graph", control = list(type = "items"),
+     engine = "htmlwidget")
+```
+>Coffee still occurs the most, but this time Pastry occurs the third-most as opposed to Tea, which is fourth in this set.Bread and tea have a high chance of being bought together with a sandwich. 
+
+##Afternoon
+```{r}
+#using the apriori function
+breadbasketaft_rules <- apriori(bba_tr,
+                                  parameter = list(support = 0.001,
+                                                   confidence = 0.1))
+
+#exploration
+inspect(sort(breadbasketaft_rules, by = "lift"))
+inspect(sort(breadbasketaft_rules, by = "count"))
+
+#visualization
+plot(breadbasketaft_rules, method = "graph", control = list(type = "items"),
+     engine = "htmlwidget")
+```
+
+>Tea reclaims its spot as third-most occuring. As with the main dataset, Salad and "Extra Salami or Feta" have a very high chance of occurring together. This is likely because the latter seems to be an optional add-on for the salad.
+
+##Evening
+```{r}
+#using the apriori function
+breadbasketeve_rules <- apriori(bbe_tr,
+                                  parameter = list(support = 0.001,
+                                                   confidence = 0.1))
+
+#exploration
+inspect(sort(breadbasketeve_rules, by = "lift"))
+inspect(sort(breadbasketeve_rules, by = "count"))
+
+#visualization
+plot(breadbasketeve_rules, method = "graph", control = list(type = "items"),
+     engine = "htmlwidget")
+```
+>Coffee is purchased the most in all 4 datasets. A duck egg has an extremely high chance of being purchased with something called The Nomad. The evening dataset has the most compelling plot to me. It seems to have distinct clusters of rules as opposed to the homoscedastic mess the other 3 sets have.
