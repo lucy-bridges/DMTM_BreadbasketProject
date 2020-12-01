@@ -2,13 +2,7 @@
 title: "Final Report for Data Mining & Test Mining"
 subtitle: "Breadbasket Project"
 author: "Lucy Bridges, Megan Morano, Wyatt Smith, Chris Willman"
-output: 
-  html_notebook:
-    toc: TRUE
-    toc_float: TRUE
-    toc_depth: 2
-   number_sections: TRUE
-   
+output: html_notebook
 ---
 
 ```{r, echo = FALSE}
@@ -22,13 +16,18 @@ library(tidyverse)
 library(arules)
 library(arulesViz)
 ```
-<br><br><br>
+
 ## Introduction
 TYPE INTRO
 
-<br><br>
 ## Data Exploration
-<br>
+
+#### Exploration Based on Time of Day
+
+Created these two tables to show what are start and end time are, to better determine the Morning, Afternoon, and Evening data tables. 
+
+## Data Exploration
+
 #### Exploration Based on Time of Day
 
 Created these two tables to show what are start and end time are, to better determine the Morning, Afternoon, and Evening data tables. 
@@ -56,13 +55,13 @@ AfternoonData <- BreadBasketData %>%
 EveningData <- BreadBasketData %>% 
                 filter(Time >= "16:00:00" & Time <= "23:59:59")   #after 4pm
 ```
-<br>
+
 #### Summary Statistics for Breadbasket Data
 ```{r}
 BreadBasketData
 summary(BreadBasketData)
 ```
-<br>
+
 #### COnfirming Top and Bottom End of Time Ranges
 Morning Data
 ```{r}
@@ -96,9 +95,9 @@ EveningData %>%
  arrange(Time) %>%
  tail(10)
 ```
-<br><br>
+
 ## Data Analysis
-<br>
+
 #### Converting Data to Transactional Data
 ```{r}
 #get rid of every column except the transaction and the items
@@ -113,7 +112,7 @@ inspect(bb_tr)
 IF_bb = rev(tail(sort(itemFrequency(bb_tr)), 6))
 barplot(IF_bb, las=2, cex.names=0.8)
 ```
-<br>
+
 #### Item Frequency Tables for Time Frames
 Morning Data Item Frequency Table
 ```{r}
@@ -159,7 +158,7 @@ inspect(bbe_tr)
 IF_bbe = rev(tail(sort(itemFrequency(bbe_tr)), 6))
 barplot(IF_bbe, las=2, cex.names=0.8)
 ```
-<br>
+
 #### Arules Anlaysis
 Using the Main Dataset:
 ```{r}
@@ -229,10 +228,8 @@ plot(breadbasketeve_rules, method = "graph", control = list(type = "items"),
 ```
 >Coffee is purchased the most in all 4 datasets. A duck egg has an extremely high chance of being purchased with something called The Nomad. The evening dataset has the most compelling plot to me. It seems to have distinct clusters of rules as opposed to the homoscedastic mess the other 3 sets have.
 
-<br>
 ## Discussion
 TYPE DISCUSSION HERE
 
-<br>
 ## Conclusion
 TYPE CONCLUSION HERE
