@@ -18,7 +18,7 @@ library(arulesViz)
 ```
 
 ## Introduction
-TYPE INTRO
+Our team decided to explore the BreadBasket dataset and we used arules to exploration. We wanted to see which items were frequently bought the most on a single day and which items were the most popular at different parts of the day. After, we decided to see which items were commonly associated with each other during the many transactions.
 
 ## Data Exploration
 
@@ -223,7 +223,7 @@ plot(breadbasketeve_rules, method = "graph", control = list(type = "items"),
 >Coffee is purchased the most in all 4 datasets. A duck egg has an extremely high chance of being purchased with something called The Nomad. The evening dataset has the most compelling plot to me. It seems to have distinct clusters of rules as opposed to the homoscedastic mess the other 3 sets have.
 
 ## Discussion
-TYPE DISCUSSION HERE
+After completing our arules research, we discovered that coffee was the most popular transactions for the main data set and was the most purchased item for morning, afternoon, and evening. The association with the highest lift in the main data set was coffee and salad with extra salami or feta. Regarding the morning transactions, bread and tea with a sandwich had the highest lift. In the afternoon, the highest lift was bread and salad with extra salami or feta. For the evening, many associations had extremely high lifts. The first 58 observations had lifts of 856. The first 862 had lifts over 100. The evening rules network shows what appear to be three distinct clusters, whereas the other three networks do not show any clusters. 
 
 ## Conclusion
-TYPE CONCLUSION HERE
+Coffee appears to be a popular product at any time of day. Based on the arules analysis, the grocery store could use the information to make stocking decisions such as putting the fudge and jam (which have a high lift) far apart to force customers to view more products as they go through the store.  
