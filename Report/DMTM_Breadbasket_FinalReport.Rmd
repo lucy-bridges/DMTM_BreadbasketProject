@@ -26,12 +26,6 @@ TYPE INTRO
 
 Created these two tables to show what are start and end time are, to better determine the Morning, Afternoon, and Evening data tables. 
 
-## Data Exploration
-
-#### Exploration Based on Time of Day
-
-Created these two tables to show what are start and end time are, to better determine the Morning, Afternoon, and Evening data tables. 
-
 ```{r}
 # top end for time spectrum
 BreadBasketData %>%
@@ -62,7 +56,7 @@ BreadBasketData
 summary(BreadBasketData)
 ```
 
-#### COnfirming Top and Bottom End of Time Ranges
+#### Confirming Top and Bottom End of Time Ranges
 Morning Data
 ```{r}
 MorningData %>%
