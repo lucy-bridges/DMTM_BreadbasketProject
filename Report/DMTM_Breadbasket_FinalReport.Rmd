@@ -15,16 +15,17 @@ library(dplyr)
 library(tidyverse)
 library(arules)
 library(arulesViz)
+library(RColorBrewer)
 ```
 
 ## Introduction
-Our team decided to explore the BreadBasket dataset and we used arules to exploration. We wanted to see which items were frequently bought the most on a single day and which items were the most popular at different parts of the day. After, we decided to see which items were commonly associated with each other during the many transactions.
+The BreadBasket dataset is a set of recorded transactions from a grocery store/bakery type of place. Our team decided to explore this dataset and use the arules library to conduct association rules analysis. We wanted to see which items were bought the most both in general and at different times of day. After that, we wanted to see which items were most commonly associated with each other in these transactions. Lastly, we created visual aids to help interpret our findings.
 
 ## Data Exploration
 
 #### Exploration Based on Time of Day
 
-Created these two tables to show what are start and end time are, to better determine the Morning, Afternoon, and Evening data tables. 
+These two tables give us an idea of the range of times that purchases are made.They also gave us a reference point for attribute names and types.
 
 ```{r}
 # top end for time spectrum
@@ -39,9 +40,13 @@ BreadBasketData %>%
   arrange(Time) %>%
   tail(20)
 ```
-Filter data into three categories: morning, afternoon, evening.
+
+Here, we filter data into three categories: morning, afternoon, evening.
 
 ```{r}
+BreadBasketData <- BreadBasketData %>%
+  na_if("NONE")
+
 MorningData <- BreadBasketData %>% 
                 filter(Time >= "00:00:00" & Time <= "11:59:59")   #before 12pm
 AfternoonData <- BreadBasketData %>% 
@@ -50,14 +55,8 @@ EveningData <- BreadBasketData %>%
                 filter(Time >= "16:00:00" & Time <= "23:59:59")   #after 4pm
 ```
 
-#### Summary Statistics for Breadbasket Data
-```{r}
-BreadBasketData
-summary(BreadBasketData)
-```
-
 #### Confirming Top and Bottom End of Time Ranges
-Morning Data
+Morning Data Exploration
 ```{r}
 MorningData %>%
   arrange(Time) %>%
@@ -67,8 +66,9 @@ MorningData %>%
   arrange(Time) %>%
   tail(10)
 ```
+>Seeing a lot of coffee and bread here
 
-Afternoon Data
+Afternoon Data Exploration
 ```{r}
 AfternoonData %>%
  arrange(Time) %>%
@@ -78,8 +78,9 @@ AfternoonData %>%
  arrange(Time) %>%
  tail(10)
 ```
+>Still a lot of coffee and bread, but there are also new items like smoothies and fudge
 
-Evening Data
+Evening Data Exploration
 ```{r}
 EveningData %>%
  arrange(Time) %>%
@@ -89,6 +90,7 @@ EveningData %>%
  arrange(Time) %>%
  tail(10)
 ```
+>Tea and Hot Chocolate make some more frequent appearances, but it's hard to get a true read on the data from just the head and tail.
 
 ## Data Analysis
 
@@ -104,8 +106,9 @@ bb_tr <- as(split(breadbasketmain[ ,"Item"], breadbasketmain[ ,"Transaction"]), 
 inspect(bb_tr)
 #create item frequency plot of the top 6 items
 IF_bb = rev(tail(sort(itemFrequency(bb_tr)), 6))
-barplot(IF_bb, las=2, cex.names=0.8)
+barplot(IF_bb, col='#532d8e', las=2, cex.names=0.8)
 ```
+>Poly Purple for the main set. As suspected, coffee and bread are purchased a LOT at this store.
 
 #### Item Frequency Tables for Time Frames
 Morning Data Item Frequency Table
@@ -120,8 +123,9 @@ bbm_tr <- as(split(breadbasketmorning[ ,"Item"], breadbasketmorning[ ,"Transacti
 inspect(bbm_tr)
 #create item frequency plot of the top 6 items
 IF_bbm = rev(tail(sort(itemFrequency(bbm_tr)), 6))
-barplot(IF_bbm, las=2, cex.names=0.8)
+barplot(IF_bbm, col='#fee197', las=2, cex.names=0.8)
 ```
+>Coffee still takes the "cake" (get it?) in the morning, which is to be expected.
 
 Afternoon Data Item Frequency Table
 ```{r}
@@ -135,8 +139,9 @@ bba_tr <- as(split(breadbasketafternoon[ ,"Item"], breadbasketafternoon[ ,"Trans
 
 #create item frequency plot of the top 6 items
 IF_bba = rev(tail(sort(itemFrequency(bba_tr)), 6))
-barplot(IF_bba, las=2, cex.names=0.8)
+barplot(IF_bba, col='#f2af46', las=2, cex.names=0.8)
 ```
+>Again, coffee is the most purchased. Soup makes a surprise guest appearance at the end, though.
 
 Evening Data Item Frequency Table
 ```{r}
@@ -150,8 +155,9 @@ bbe_tr <- as(split(breadbasketevening[ ,"Item"], breadbasketevening[ ,"Transacti
 inspect(bbe_tr)
 #create item frequency plot of the top 6 items
 IF_bbe = rev(tail(sort(itemFrequency(bbe_tr)), 6))
-barplot(IF_bbe, las=2, cex.names=0.8)
+barplot(IF_bbe, col='#ff8866', las=2, cex.names=0.8)
 ```
+>Evening stretches from Dinner time to midnight, so it makes sense to see a wide-ish range here. Coffee and bread vs hot chocolate and cookies.
 
 #### Arules Anlaysis
 Using the Main Dataset:
@@ -159,71 +165,125 @@ Using the Main Dataset:
 #using the apriori function
 breadbasketmain_rules <- apriori(bb_tr,
                                   parameter = list(support = 0.001,
-                                                   confidence = 0.1))
+                                                   confidence = 0.3)) #0.484 produces 100 rules exactly
 #exploration
 inspect(sort(breadbasketmain_rules, by = "lift"))
-inspect(sort(breadbasketmain_rules, by = "count"))
+```
+>Coffee is on the right side a lot. It is the rhs for almost every single row, which doesn't provide anything useful. Perhaps it should be omitted.
 
+```{r}
+#refinement
+breadbasketmain_rulessub <- subset(breadbasketmain_rules, subset =! rhs %in% "Coffee" & ! rhs %in% "Bread") #After some iteration, bread seemed too common too. We get it, everyone buys coffee and bread.
+
+inspect(sort(breadbasketmain_rulessub, by = "lift"))
+```
+>This is much more helpful. "Extra salami or feta" sounds like a salad add-on, so it SHOULD have a high lift if put on the lhs vs salad on the rhs. It isn't really conducive to helpful analysis, however. There seems to be a high likelihood of customers buying a sandwhich if they buy two drinks, which could possibly indicate couples and/or families shopping here for lunch. 
+
+```{r}
 #visualization
 plot(breadbasketmain_rules, method = "graph", control = list(type = "items"),
      engine = "htmlwidget")
+
+#Ignore this, nothing to see here
+BetterPurple <- rev(brewer.pal(9, "Purples")[3:9])
+
+#plot of confidence against support, colored by lift
+plot(breadbasketmain_rules, main="Main Data", col=palette(BetterPurple), shading="lift")
 ```
->Interestingly, Fudge and Jam seem to have a very high chance of occuring together. Coffee alone occurs the most.
+>The network doesn't seem to have any visually-distinct clusters. Coffee just seems to have about 5 million arrows pointing at it, which makes sense because it is bought so much more than everything else.
+
+```{r}
+#visualization
+plot(breadbasketmain_rulessub, method = "graph", control = list(type = "items"),
+     engine = "htmlwidget")
+
+#plot of confidence against support, colored by lift
+plot(breadbasketmain_rulessub, main="Main Data Subset", col=palette(BetterPurple), shading="lift")
+```
+>As the above analysis indicated, "Extra salami or feta" is clustered with salad, and coke is clustered with sandwich.
 
 Using the Morning Dataset:
 ```{r}
 #using the apriori function
 breadbasketmorn_rules <- apriori(bbm_tr,
                                   parameter = list(support = 0.001,
-                                                   confidence = 0.1))
+                                                   confidence = 0.3))
 
+breadbasketmorn_rulessub <- subset(breadbasketmorn_rules, subset =! rhs %in% "Coffee" & ! rhs %in% "Bread")
 #exploration
-inspect(sort(breadbasketmorn_rules, by = "lift"))
-inspect(sort(breadbasketmorn_rules, by = "count"))
-
-#visualization
-plot(breadbasketmain_rules, method = "graph", control = list(type = "items"),
-     engine = "htmlwidget")
+inspect(sort(breadbasketmorn_rulessub, by = "lift"))
 ```
->Coffee still occurs the most, but this time Pastry occurs the third-most as opposed to Tea, which is fourth in this set.Bread and tea have a high chance of being bought together with a sandwich. 
+>Subsetted prior to analysis. Unfortunately, it is hard to take away anything solid from this. I do find it interesting that I don't see jam on this list. I would think it would go with toast quite a bit!
+
+```{r}
+#visualization
+plot(breadbasketmorn_rulessub, method = "graph", control = list(type = "items"),
+     engine = "htmlwidget")
+
+plot(breadbasketmain_rulessub, main="Morning Data Subset", col=palette(rev(brewer.pal(4, "YlOrRd")[1:4])), shading="lift")
+```
+Nothing stands out about this network. Many arrows point to tea, which makes sense as it is one of the most frequently purchased items.
 
 Using the Afternoon Dataset
 ```{r}
 #using the apriori function
 breadbasketaft_rules <- apriori(bba_tr,
                                   parameter = list(support = 0.001,
-                                                   confidence = 0.1))
+                                                   confidence = 0.3))
 
+breadbasketaft_rulessub <- subset(breadbasketaft_rules, subset =! rhs %in% "Coffee" & ! rhs %in% "Bread")
 #exploration
 inspect(sort(breadbasketaft_rules, by = "lift"))
-inspect(sort(breadbasketaft_rules, by = "count"))
-
-#visualization
-plot(breadbasketaft_rules, method = "graph", control = list(type = "items"),
-     engine = "htmlwidget")
 ```
+>Some very high lifts. This could indicate that the "extra salami or feta" add-on is quite popular. When paired with bread and salad, it has the highest lift of any rule so far (at least in the subsets). People who buy chips are also likely to purchase juice, and people who buy coffee AND chips are even more so. 
 
->Tea reclaims its spot as third-most occuring. As with the main dataset, Salad and "Extra Salami or Feta" have a very high chance of occurring together. This is likely because the latter seems to be an optional add-on for the salad.
+
+```{r}
+#visualization
+plot(breadbasketaft_rulessub, method = "graph", control = list(type = "items"),
+     engine = "htmlwidget")
+
+plot(breadbasketaft_rulessub, main="Afternoon Data Subset", col=palette(rev(brewer.pal(4, "Greens")[1:4])), shading="lift")
+```
+>Again, there are clusters around the popular items (cake, tea, etc.) Interestingly, there are a decent number of rules involving hot chocolate for a set of afternoon purchases.
 
 Using the Evening Dataset:
 ```{r}
 #using the apriori function
 breadbasketeve_rules <- apriori(bbe_tr,
                                   parameter = list(support = 0.001,
-                                                   confidence = 0.1))
+                                                   confidence = 0.3))
 
-#exploration
-inspect(sort(breadbasketeve_rules, by = "lift"))
-inspect(sort(breadbasketeve_rules, by = "count"))
-
-#visualization
-plot(breadbasketeve_rules, method = "graph", control = list(type = "items"),
-     engine = "htmlwidget")
+breadbasketeve_rulessub <- subset(breadbasketeve_rules, subset =! rhs %in% "Coffee" & ! rhs %in% "Bread")
+#exploration (this took some iteration)
+inspect(sort(breadbasketeve_rulessub, by = "lift"))
 ```
->Coffee is purchased the most in all 4 datasets. A duck egg has an extremely high chance of being purchased with something called The Nomad. The evening dataset has the most compelling plot to me. It seems to have distinct clusters of rules as opposed to the homoscedastic mess the other 3 sets have.
+>I have no idea what "The Nomad" is and I really hope "duck egg" isn't what it sounds like. These lift values are extremely high, probably because the counts for all these transactions are "1". Subset time.
+
+```{r}
+#Subsetting (iterated upon)
+breadbasketeve_rulessub <- subset(breadbasketeve_rulessub, subset = count > 5)
+
+inspect(sort(breadbasketeve_rulessub, by = "lift"))
+```
+>Tshirts are frequently bought when postcards are bought. This makes sense, as they are both souveneirs. However, with only six actual transactions, this should not be treated as "conclusive".
+
+```{r}
+#visualization
+plot(breadbasketeve_rulessub, method = "graph", control = list(type = "items"),
+     engine = "htmlwidget")
+
+plot(breadbasketaft_rulessub, main="Evening Data Subset", col=palette(rev(brewer.pal(4, "Blues"))), shading="lift")
+```
+>There are a couple interesting visuals here. It would appear the only transactions (in this subset) involving postcards and tshirts are of rule 1. As it is one of the most popular items in general and during this time period, tea again has many arrows pointing towards it. 
 
 ## Discussion
-After completing our arules research, we discovered that coffee was the most popular transactions for the main data set and was the most purchased item for morning, afternoon, and evening. The association with the highest lift in the main data set was coffee and salad with extra salami or feta. Regarding the morning transactions, bread and tea with a sandwich had the highest lift. In the afternoon, the highest lift was bread and salad with extra salami or feta. For the evening, many associations had extremely high lifts. The first 58 observations had lifts of 856. The first 862 had lifts over 100. The evening rules network shows what appear to be three distinct clusters, whereas the other three networks do not show any clusters. 
+Through exploration, we were able to see that transactions generally occurred between 07:00 and 23:00, with one a little after 01:00. As a side note, this was relatively challenging to convert to a properly formatted transaction database even though it is already kind of set up like one. After completing our frequency analysis, we discovered that coffee was the most popular item for the main data set and was the most-purchased item for morning, afternoon, and evening. We also found that, because coffee and bread vastly outnumbered the other items, the rhs of the rules were dominated by them. We had to create subsets that banned those from the rhs to get any kind of meaningful analysis. 
+
+The association with the highest lift in the main data set was coffee and salad with extra salami or feta. Regarding the morning transactions, juice being purchased with coffee and Jammie Dodgers had the highest lift. In the afternoon, the highest lift was bread and salad with extra salami or feta. For the evening, many associations had extremely high lifts. Before subsetting, the first 58 observations had lifts of 856. The first 862 rows had lifts over 100. After subsetting, the results were much more reasonable. We had to subset by lift and count because most of the rules had a count of 1, which skewed the metrics to a severe degree. 
+
+As one would expect, the most popular items seem to have their own clusters in the network diagrams. You can also see some other common-sense combinations, such as the salad with extra salami or feta, along with some that might be overlooked, like the postcard with the t-shirt. However, the rest is hard to interpret. Most of the associations involve 2 or more items in the lhs, and we don't even know what some of the items are. The economics of food also make analysis of the situation complex, as some foods are primary goods, some are complementary, some are substitutes, and some are a little of each. Looking at the scatter plots of confidence against support, there doesn’t seem to be a very wide range of support. This makes sense, as there are a lot of different items and thousands of transactions. 
+
 
 ## Conclusion
-Coffee appears to be a popular product at any time of day. Based on the arules analysis, the grocery store could use the information to make stocking decisions such as putting the fudge and jam (which have a high lift) far apart to force customers to view more products as they go through the store.  
+Coffee appears to be a popular product at any time of day. Based on the arules analysis, the store may be able to make some stocking decisions to encourage the purchase of certain products. However, at least in the eyes of 4 inexperienced data miners, most of the associations we found do not seem particularly useful. 
