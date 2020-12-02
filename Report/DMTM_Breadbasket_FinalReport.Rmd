@@ -179,6 +179,7 @@ inspect(sort(breadbasketmain_rulessub, by = "lift"))
 ```
 >This is much more helpful. "Extra salami or feta" sounds like a salad add-on, so it SHOULD have a high lift if put on the lhs vs salad on the rhs. It isn't really conducive to helpful analysis, however. There seems to be a high likelihood of customers buying a sandwhich if they buy two drinks, which could possibly indicate couples and/or families shopping here for lunch. 
 
+Main Network Diagram and Scatterplot
 ```{r}
 #visualization
 plot(breadbasketmain_rules, method = "graph", control = list(type = "items"),
@@ -192,6 +193,7 @@ plot(breadbasketmain_rules, main="Main Data", col=palette(BetterPurple), shading
 ```
 >The network doesn't seem to have any visually-distinct clusters. Coffee just seems to have about 5 million arrows pointing at it, which makes sense because it is bought so much more than everything else.
 
+Main Subset Network Diagram and Scatterplot
 ```{r}
 #visualization
 plot(breadbasketmain_rulessub, method = "graph", control = list(type = "items"),
@@ -215,6 +217,7 @@ inspect(sort(breadbasketmorn_rulessub, by = "lift"))
 ```
 >Subsetted prior to analysis. Unfortunately, it is hard to take away anything solid from this. I do find it interesting that I don't see jam on this list. I would think it would go with toast quite a bit!
 
+Morning Network Diagram and Scatterplot
 ```{r}
 #visualization
 plot(breadbasketmorn_rulessub, method = "graph", control = list(type = "items"),
@@ -237,7 +240,7 @@ inspect(sort(breadbasketaft_rules, by = "lift"))
 ```
 >Some very high lifts. This could indicate that the "extra salami or feta" add-on is quite popular. When paired with bread and salad, it has the highest lift of any rule so far (at least in the subsets). People who buy chips are also likely to purchase juice, and people who buy coffee AND chips are even more so. 
 
-
+Afternoon Network Diagram and Scatterplot
 ```{r}
 #visualization
 plot(breadbasketaft_rulessub, method = "graph", control = list(type = "items"),
@@ -268,6 +271,7 @@ inspect(sort(breadbasketeve_rulessub, by = "lift"))
 ```
 >Tshirts are frequently bought when postcards are bought. This makes sense, as they are both souveneirs. However, with only six actual transactions, this should not be treated as "conclusive".
 
+Evening Network Diagram and Scatterplot
 ```{r}
 #visualization
 plot(breadbasketeve_rulessub, method = "graph", control = list(type = "items"),
