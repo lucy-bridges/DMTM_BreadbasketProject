@@ -1,4 +1,9 @@
 # DMTM_BreadbasketProject
+## Team Members
+Lucy Bridges
+Megan Morano
+Wyatt Smith
+Chris Willman
 ## Executive Summary
 
 The BreadBasket dataset is a list of transactions from a grocery store of some kind. Our team decided to use the arules and arulesViz libraries in RStudio to conduct an analysis of this dataset. We started off with some basic data exploration. We looked at the head and tail of the dataset, sorted by time, to look at some of the items bought in the morning and some of the items bought at night.This also served as a reference-point for attribute names and types. Then, the main data file was split into 3 additional files: MorningData, AfternoonData, and EveningData. These would later be used to conduct arules analysis of those individual time frames.
