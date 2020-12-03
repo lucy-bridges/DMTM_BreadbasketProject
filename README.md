@@ -1,8 +1,8 @@
 # DMTM_BreadbasketProject
 ## Team Members
-Lucy Bridges
-Megan Morano
-Wyatt Smith
+Lucy Bridges,
+Megan Morano,
+Wyatt Smith,
 Chris Willman
 ## Executive Summary
 
